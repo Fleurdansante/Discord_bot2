@@ -270,27 +270,22 @@ class VcBot(commands.Bot):
         self.config = config
         self.vc_cog: Optional[VcNotifier] = None
 
-    async def setup_hook(self):
-        self.vc_cog = VcNotifier(self)
-        await self.add_cog(self.vc_cog)
+ async def setup_hook(self):
+    self.vc_cog = VcNotifier(self)
+    await self.add_cog(self.vc_cog)
 
-        admin_group = AdminGroup(self)
-        self.tree.add_command(AdminGroup(self))
+    admin_group = AdminGroup(self)
+    self.tree.add_command(admin_group)
 
-        self.vc_cog.daily_summary.start()
+    self.vc_cog.daily_summary.start()
 
-    async def on_ready(self):
-        try:
-            synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
-            print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
-        except Exception as e:
-            print(f"❌ Command sync failed: {e}")
+    synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
+    print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
 
-        dest = load_persisted_dest_channel_id()
-        if dest:
-            self.vc_cog.dest_channel_id = dest
-            logging.getLogger("VcBot").info("通知先チャンネルを自動設定: %s", dest)
-        logging.getLogger("VcBot").info("ログイン成功: %s (%s)", self.user, self.user.id)
+
+async def on_ready(self):
+    print(f"ログイン成功: {self.user} ({self.user.id})")
+
 
 
 # ===================== メイン =====================
