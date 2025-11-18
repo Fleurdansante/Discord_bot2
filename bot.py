@@ -276,13 +276,19 @@ class VcBot(commands.Bot):
         await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
         self.vc_cog.daily_summary.start()
 
-    async def on_ready(self):
-        # 自動で通知チャンネル設定
-        dest = load_persisted_dest_channel_id()
-        if dest:
-            self.vc_cog.dest_channel_id = dest
-            logging.getLogger("VcBot").info("通知先チャンネルを自動設定: %s", dest)
-        logging.getLogger("VcBot").info("ログイン成功: %s (%s)", self.user, self.user.id)
+   async def on_ready(self):
+    try:
+        synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
+        print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
+    except Exception as e:
+        print(f"❌ Command sync failed: {e}")
+
+    dest = load_persisted_dest_channel_id()
+    if dest:
+        self.vc_cog.dest_channel_id = dest
+        logging.getLogger("VcBot").info("通知先チャンネルを自動設定: %s", dest)
+    logging.getLogger("VcBot").info("ログイン成功: %s (%s)", self.user, self.user.id)
+
 
 # ===================== メイン =====================
 def main():
