@@ -252,16 +252,13 @@ class AdminGroup(app_commands.Group):
         cog: VcNotifier = self.bot.vc_cog
         cog.dest_channel_id = interaction.channel_id
         save_persisted_dest_channel_id(cog.dest_channel_id)
-        await interaction.response.send_message("✅ 通知先を設定しました（保存済み）", ephemeral=True)
+        await interaction.response.send_message("✅ 通知チャンネルを設定しました（保存済み）", ephemeral=True)
 
     @app_commands.command(name="test", description="通知テスト")
     async def test(self, interaction: discord.Interaction):
         cog: VcNotifier = self.bot.vc_cog
         await interaction.response.send_message("送信テスト中…", ephemeral=True)
         await cog.notify("🔔 テスト通知：このチャンネルに届きます。")
-
-AdminGroup.setchannel.parent = AdminGroup
-AdminGroup.test.parent = AdminGroup
 
 # ===================== Bot本体 =====================
 class VcBot(commands.Bot):
@@ -273,16 +270,16 @@ class VcBot(commands.Bot):
         self.vc_cog: Optional[VcNotifier] = None
 
     async def setup_hook(self):
-        self.vc_cog = VcNotifier(self)
-        await self.add_cog(self.vc_cog)
+    self.vc_cog = VcNotifier(self)
+    await self.add_cog(self.vc_cog)
 
-        admin_group = AdminGroup(self)
-        self.tree.add_command(admin_group)
+    admin_group = AdminGroup(self)
+    self.tree.add_command(admin_group)
 
-        self.vc_cog.daily_summary.start()
+    self.vc_cog.daily_summary.start()
 
-        synced = await self.tree.sync()
-        print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
+    synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
+    print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
 
     async def on_ready(self):
         print(f"ログイン成功: {self.user} ({self.user.id})")
