@@ -260,6 +260,7 @@ class AdminGroup(app_commands.Group):
         await interaction.response.send_message("送信テスト中…", ephemeral=True)
         await cog.notify("🔔 テスト通知：このチャンネルに届きます。")
 
+
 # ===================== Bot本体 =====================
 class VcBot(commands.Bot):
     def __init__(self, config: Config):
@@ -272,7 +273,10 @@ class VcBot(commands.Bot):
     async def setup_hook(self):
         self.vc_cog = VcNotifier(self)
         await self.add_cog(self.vc_cog)
-        self.tree.add_command(AdminGroup(self))
+
+        admin_group = AdminGroup(self)
+        self.tree.add_command(admin_group)
+
         self.vc_cog.daily_summary.start()
 
     async def on_ready(self):
