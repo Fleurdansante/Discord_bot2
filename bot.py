@@ -272,8 +272,7 @@ class VcBot(commands.Bot):
     async def setup_hook(self):
         self.vc_cog = VcNotifier(self)
         await self.add_cog(self.vc_cog)
-        self.tree.add_command(AdminGroup(self))
-        await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
+        self.tree.add_command(AdminGroup(self)
         self.vc_cog.daily_summary.start()
 
    async def on_ready(self):
