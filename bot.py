@@ -270,16 +270,17 @@ class VcBot(commands.Bot):
         self.vc_cog: Optional[VcNotifier] = None
 
     async def setup_hook(self):
-    self.vc_cog = VcNotifier(self)
-    await self.add_cog(self.vc_cog)
+        self.vc_cog = VcNotifier(self)
+        await self.add_cog(self.vc_cog)
 
-    admin_group = AdminGroup(self)
-    self.tree.add_command(admin_group)
+        admin_group = AdminGroup(self)
+        self.tree.add_command(admin_group)
 
-    self.vc_cog.daily_summary.start()
+        self.vc_cog.daily_summary.start()
 
-    synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
-    print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
+        synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
+        print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
+
 
     async def on_ready(self):
         print(f"ログイン成功: {self.user} ({self.user.id})")
