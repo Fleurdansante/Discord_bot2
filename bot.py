@@ -241,48 +241,39 @@ class VcNotifier(commands.Cog):
     async def before_summary(self):
         await self.bot.wait_until_ready()
 
-# ===================== 管理コマンド =====================
 class AdminGroup(app_commands.Group):
-    def __init__(self, bot: "VcBot"):
+    def __init__(self, bot):
         super().__init__(name="admin", description="管理用コマンド")
         self.bot = bot
 
     @app_commands.command(name="setchannel", description="通知チャンネルを設定")
     async def setchannel(self, interaction: discord.Interaction):
-        cog: VcNotifier = self.bot.vc_cog
+        cog = self.bot.vc_cog
         cog.dest_channel_id = interaction.channel_id
         save_persisted_dest_channel_id(cog.dest_channel_id)
-        await interaction.response.send_message("✅ 通知チャンネルを設定しました（保存済み）", ephemeral=True)
+        await interaction.response.send_message("設定しました", ephemeral=True)
 
     @app_commands.command(name="test", description="通知テスト")
     async def test(self, interaction: discord.Interaction):
-        cog: VcNotifier = self.bot.vc_cog
-        await interaction.response.send_message("送信テスト中…", ephemeral=True)
-        await cog.notify("🔔 テスト通知：このチャンネルに届きます。")
+        await interaction.response.send_message("テストOK👍", ephemeral=True)
+        await self.bot.vc_cog.notify("🔔 テスト通知です！")
 
-# ===================== Bot本体 =====================
+
 class VcBot(commands.Bot):
-    def __init__(self, config: Config):
-        intents = discord.Intents.default()
-        intents.voice_states = True
-        super().__init__(command_prefix="!", intents=intents)
-        self.config = config
-        self.vc_cog: Optional[VcNotifier] = None
 
     async def setup_hook(self):
         self.vc_cog = VcNotifier(self)
         await self.add_cog(self.vc_cog)
 
-        # 🔥 Guild 指定で Group を直接登録
-        self.tree.add_command(AdminGroup(self), guild=discord.Object(id=self.config.guild_id))
+        # ← これだけにする（1回のみ）
+        self.tree.add_command(AdminGroup(self))
+
+        # ← Guild scope を設定（最重要）
+        guild = discord.Object(id=self.config.guild_id)
+        synced = await self.tree.sync(guild=guild)
+        print(f"🔁 Synced {len(synced)} commands to GUILD {self.config.guild_id}")
 
         self.vc_cog.daily_summary.start()
-
-        synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
-        print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
-
-    async def on_ready(self):
-        print(f"ログイン成功: {self.user} ({self.user.id})")
         
 # ===================== メイン =====================
 def main():
