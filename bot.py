@@ -247,14 +247,14 @@ class AdminGroup(app_commands.Group):
         super().__init__(name="admin", description="管理用コマンド")
         self.bot = bot
 
-    @AdminGroup.command(name="setchannel", description="通知チャンネルを設定")
+    @app_commands.command(name="setchannel", description="通知チャンネルを設定")
     async def setchannel(self, interaction: discord.Interaction):
         cog: VcNotifier = self.bot.vc_cog
         cog.dest_channel_id = interaction.channel_id
         save_persisted_dest_channel_id(cog.dest_channel_id)
         await interaction.response.send_message("✅ 通知先を設定しました（保存済み）", ephemeral=True)
 
-    @AdminGroup.command(name="test", description="通知テスト")
+    @app_commands.command(name="test", description="通知テスト")
     async def test(self, interaction: discord.Interaction):
         cog: VcNotifier = self.bot.vc_cog
         await interaction.response.send_message("送信テスト中…", ephemeral=True)
@@ -275,7 +275,7 @@ class VcBot(commands.Bot):
         await self.add_cog(self.vc_cog)
 
         admin_group = AdminGroup(self)
-        self.tree.add_command(admin_group)
+        self.tree.add_command(AdminGroup(self))
 
         self.vc_cog.daily_summary.start()
 
