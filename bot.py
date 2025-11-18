@@ -280,13 +280,10 @@ class VcBot(commands.Bot):
 
         synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
         print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
-
-
-
+  
     async def on_ready(self):
         print(f"ログイン成功: {self.user} ({self.user.id})")
-
-
+        
 # ===================== メイン =====================
 def main():
     config = Config.load()
