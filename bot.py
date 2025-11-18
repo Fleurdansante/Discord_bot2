@@ -255,10 +255,13 @@ class AdminGroup(app_commands.Group):
         await interaction.response.send_message("✅ 通知先を設定しました（保存済み）", ephemeral=True)
 
     @app_commands.command(name="test", description="通知テスト")
-    async def test(self, interaction: discord.Interation):
+    async def test(self, interaction: discord.Interaction):
         cog: VcNotifier = self.bot.vc_cog
         await interaction.response.send_message("送信テスト中…", ephemeral=True)
         await cog.notify("🔔 テスト通知：このチャンネルに届きます。")
+
+AdminGroup.setchannel.parent = AdminGroup
+AdminGroup.test.parent = AdminGroup
 
 # ===================== Bot本体 =====================
 class VcBot(commands.Bot):
