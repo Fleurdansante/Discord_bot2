@@ -275,7 +275,7 @@ class VcBot(commands.Bot):
         self.tree.add_command(AdminGroup(self)
         self.vc_cog.daily_summary.start()
 
-   async def on_ready(self):
+    async def on_ready(self):
     try:
         synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
         print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
