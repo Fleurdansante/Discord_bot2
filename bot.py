@@ -260,21 +260,15 @@ class AdminGroup(app_commands.Group):
 
 
 class VcBot(commands.Bot):
+    def __init__(self, config: Config):
+        intents = discord.Intents.default()
+        intents.voice_states = True
 
-    async def setup_hook(self):
-        self.vc_cog = VcNotifier(self)
-        await self.add_cog(self.vc_cog)
+        super().__init__(command_prefix="!", intents=intents)
 
-        # ← これだけにする（1回のみ）
-        self.tree.add_command(AdminGroup(self))
+        self.config = config
+        self.vc_cog: Optional[VcNotifier] = None
 
-        # ← Guild scope を設定（最重要）
-        guild = discord.Object(id=self.config.guild_id)
-        synced = await self.tree.sync(guild=guild)
-        print(f"🔁 Synced {len(synced)} commands to GUILD {self.config.guild_id}")
-
-        self.vc_cog.daily_summary.start()
-        
 # ===================== メイン =====================
 def main():
     config = Config.load()
