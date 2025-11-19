@@ -274,13 +274,15 @@ class VcBot(commands.Bot):
         await self.add_cog(self.vc_cog)
 
         admin_group = AdminGroup(self)
-        self.tree.add_command(admin_group)
+        self.tree.add_command(admin_group, guild=discord.Object(id=self.config.guild_id))
+
+        try:
+            synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
+            print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
+        except Exception as e:
+            print(f"❌ Command sync failed: {e}")
 
         self.vc_cog.daily_summary.start()
-
-        # 🔥重要：グローバル同期ではなくギルド同期にする
-        synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
-        print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
 
     async def on_ready(self):
         print(f"ログイン成功: {self.user} ({self.user.id})")
