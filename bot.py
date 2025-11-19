@@ -265,30 +265,25 @@ class VcBot(commands.Bot):
     def __init__(self, config: Config):
         intents = discord.Intents.default()
         intents.voice_states = True
-        intents.guilds = True  # ← Slash Commands には必要
         super().__init__(command_prefix="!", intents=intents)
-
         self.config = config
         self.vc_cog: Optional[VcNotifier] = None
 
     async def setup_hook(self):
-        # Cog 登録
         self.vc_cog = VcNotifier(self)
         await self.add_cog(self.vc_cog)
 
-        # Slash Command 登録（Guild Scope）
         admin_group = AdminGroup(self)
         self.tree.add_command(admin_group)
 
-        guild_obj = discord.Object(id=self.config.guild_id)
-        synced = await self.tree.sync(guild=guild_obj)
-        print(f"🔁 Synced {len(synced)} commands to GUILD {self.config.guild_id}")
-
         self.vc_cog.daily_summary.start()
+
+        # 🔥重要：グローバル同期ではなくギルド同期にする
+        synced = await self.tree.sync(guild=discord.Object(id=self.config.guild_id))
+        print(f"🔁 Synced {len(synced)} commands to guild {self.config.guild_id}")
 
     async def on_ready(self):
         print(f"ログイン成功: {self.user} ({self.user.id})")
-
 
 # ===================== メイン =====================
 def main():
